@@ -68,7 +68,9 @@ public class MapFrame extends JFrame {
         try {
             // must be in try and catch because of reading from JSON file "readValue"
             // PROVIDED GERMANY POINTS
-            List<Facility> allFacilities = objectMapper.readValue(new File("C:\\Users\\PC-2\\Desktop\\89231025_K-meansClustering\\germany\\germany.json"), new TypeReference<List<Facility>>() {});
+
+            //File path should be relative and not absolute - "germany/germany.json" Alja Eremic
+            List<Facility> allFacilities = objectMapper.readValue(new File("germany/germany.json"), new TypeReference<List<Facility>>() {});
 
             // SMALLER NUM OF FACILITIES FOR TESTING -
             // NOT NEEDED ANYMORE, 11 000> MORE GERMANY IS BROKEN
