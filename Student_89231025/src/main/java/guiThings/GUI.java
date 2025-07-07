@@ -61,7 +61,8 @@ public class GUI extends JFrame {
         panel.add(buttonPanel, BorderLayout.CENTER);
 
         sequentialButton.addActionListener(e -> openSequential());
-        parallelButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Parallel mode is under development."));
+        parallelButton.addActionListener(e-> openParallel());
+        //parallelButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Parallel mode is under development."));
         distributedButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Distributed mode is under development."));
         
         add(panel);
@@ -153,7 +154,7 @@ public class GUI extends JFrame {
 
                     // Pass these values to your MapFrame
                     // new MapFrame(numSites, numClusters, numCycles);
-                    new MapFrameJustGermany(numSites, numClusters, numCycles);
+                    new MapFrameJustGermany(numSites, numClusters, numCycles, false);
 
                     // Close the settings frame
                     sequentialFrame.dispose();
@@ -163,6 +164,83 @@ public class GUI extends JFrame {
                     clustersField.setText("");
                     cyclesField.setText("");
                     JOptionPane.showMessageDialog(sequentialFrame, "Please enter valid numbers.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+    }
+
+    private void openParallel() {
+        dispose();
+        Border Crniborder = BorderFactory.createLineBorder(Color.BLACK);
+
+        JFrame parallelFrame = new JFrame("Parallel settings");
+        parallelFrame.setSize(400,300);
+        parallelFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        parallelFrame.setLocation(200,200);
+
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        panel.setBackground(Color.pink);
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel sitesLabel = new JLabel("Number of Accumulation Sites:");
+        JTextField sitesField = new JTextField();
+        // editing looks
+        sitesField.setBorder(Crniborder);
+        sitesField.setBackground(Color.getHSBColor(100,75,79));
+
+        JLabel clustersLabel = new JLabel("Number of Clusters:");
+        JTextField clustersField = new JTextField();
+        // editing looks
+        clustersField.setBorder(Crniborder);
+        clustersField.setBackground(Color.getHSBColor(100,75,79));
+
+        JLabel cyclesLabel = new JLabel("Number of Cycles:");
+        JTextField cyclesField = new JTextField();
+        // editing looks
+        cyclesField.setBorder(Crniborder);
+        cyclesField.setBackground(Color.getHSBColor(100,75,79));
+
+        JButton confirmButton = new JButton("Confirm");
+
+        panel.add(sitesLabel);
+        panel.add(sitesField);
+
+        panel.add(clustersLabel);
+        panel.add(clustersField);
+
+        panel.add(cyclesLabel);
+        panel.add(cyclesField);
+
+        panel.add(new JLabel()); // Empty space
+        panel.add(confirmButton);
+
+        parallelFrame.add(panel);
+        parallelFrame.setVisible(true);
+
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int numSites = Integer.parseInt(sitesField.getText());
+                    int numClusters = Integer.parseInt(clustersField.getText());
+                    int numCycles = Integer.parseInt(cyclesField.getText());
+
+                    if(numSites<0 || numClusters<0 || numCycles<0 || numClusters>numSites){
+                        numCycles= Integer.parseInt(""); // couldn't make up better solution so here it is hahah
+                    }
+
+                    // Pass these values to your MapFrame
+                    // new MapFrame(numSites, numClusters, numCycles);
+                    new MapFrameJustGermany(numSites, numClusters, numCycles, true);
+
+                    // Close the settings frame
+                    parallelFrame.dispose();
+
+                } catch (NumberFormatException ex) {
+                    sitesField.setText("");
+                    clustersField.setText("");
+                    cyclesField.setText("");
+                    JOptionPane.showMessageDialog(parallelFrame, "Please enter valid numbers.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

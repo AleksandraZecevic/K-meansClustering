@@ -24,7 +24,8 @@ public class MapFrameJustGermany extends JFrame {
     private static final int SEED = 17;
 
     private int numFacilities, numClusters, numCycles;
-    public MapFrameJustGermany(int numSites, int numC, int numCy) {
+    private boolean isParallel;
+    public MapFrameJustGermany(int numSites, int numC, int numCy, boolean p) {
         super("K-means clustering");
         setSize(800, 600);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -32,6 +33,7 @@ public class MapFrameJustGermany extends JFrame {
         numFacilities = numSites;
         numClusters = numC;
         numCycles = numCy;
+        isParallel = p;
 
         initializeMap();
         initializeClustering();
@@ -71,32 +73,66 @@ public class MapFrameJustGermany extends JFrame {
 
             List<Facility> facilities = getFacilities(allFacilities, numFacilities);
 
-            Kmeans kmeans = new Kmeans(numClusters, numCycles, facilities);
-            kmeans.run();
+           /* Kmeans kmeans = new Kmeans(numClusters, numCycles, facilities);
+            kmeans.run();*/
 
-            mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() { // retrieves the main map component from the JXMapkit
-                // automatically got it with JComponent
-                @Override
-                public void paint(Graphics2D g, JComponent jComponent, int width, int height) {
-                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // for smoother resolution - tbh chat gave me this line
+            if (isParallel) {
+                Logger.log("MapFrameJustGermany - Running in PARALLEL mode");
+                Parallel.KmeansP kmeans = new Parallel.KmeansP(numClusters, numCycles, facilities);
+                kmeans.run();
 
-                    List<Cluster> clusters = kmeans.getClusters();
+                mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() { // retrieves the main map component from the JXMapkit
+                    // automatically got it with JComponent
+                    @Override
+                    public void paint(Graphics2D g, JComponent jComponent, int width, int height) {
+                        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // for smoother resolution - tbh chat gave me this line
 
-                    for(int i=0; i<clusters.size(); i++){
-                        Cluster cluster = clusters.get(i);
-                        Color clusterColor = getColorForCluster(i);
+                        List<Cluster> clusters = kmeans.getClusters();
 
-                        for(int j=0; j<cluster.getFacilities().size(); j++){
-                            Facility facility = cluster.getFacilities().get(j);
-                            drawPoint(g, mapKit, facility, clusterColor);
+                        for(int i=0; i<clusters.size(); i++){
+                            Cluster cluster = clusters.get(i);
+                            Color clusterColor = getColorForCluster(i);
+
+                            for(int j=0; j<cluster.getFacilities().size(); j++){
+                                Facility facility = cluster.getFacilities().get(j);
+                                drawPoint(g, mapKit, facility, clusterColor);
+                            }
+                            // same color as cluster color
+
+                            drawCentroid(g, mapKit, cluster.getCentroid(), clusterColor);
                         }
-                        // same color as cluster color
 
-                        drawCentroid(g, mapKit, cluster.getCentroid(), clusterColor);
                     }
+                });
+            } else {
+                Logger.log("MapFrameJustGermany - Running in SEQUENTIAL mode");
+                Kmeans kmeans = new Kmeans(numClusters, numCycles, facilities);
+                kmeans.run();
 
-                }
-            });
+                mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() { // retrieves the main map component from the JXMapkit
+                    // automatically got it with JComponent
+                    @Override
+                    public void paint(Graphics2D g, JComponent jComponent, int width, int height) {
+                        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // for smoother resolution - tbh chat gave me this line
+
+                        List<Cluster> clusters = kmeans.getClusters();
+
+                        for(int i=0; i<clusters.size(); i++){
+                            Cluster cluster = clusters.get(i);
+                            Color clusterColor = getColorForCluster(i);
+
+                            for(int j=0; j<cluster.getFacilities().size(); j++){
+                                Facility facility = cluster.getFacilities().get(j);
+                                drawPoint(g, mapKit, facility, clusterColor);
+                            }
+                            // same color as cluster color
+
+                            drawCentroid(g, mapKit, cluster.getCentroid(), clusterColor);
+                        }
+
+                    }
+                });
+            }
 
         } catch (IOException e) {
             throw new RuntimeException(e);

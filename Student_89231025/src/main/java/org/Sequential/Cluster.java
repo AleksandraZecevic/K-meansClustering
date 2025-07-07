@@ -34,4 +34,23 @@ public class Cluster {
     public void setCentroid(Centroid centroid) {
         this.centroid = centroid;
     }
+
+    public void recalculateCentroid() {
+        if (facilities.isEmpty()) {
+            return; // no change if empty
+        }
+
+        double sumLongitude = 0;
+        double sumLatitude = 0;
+
+        for (Facility f : facilities) {
+            sumLongitude += f.getLongitude();
+            sumLatitude += f.getLatitude();
+        }
+
+        double avgLongitude = sumLongitude / facilities.size();
+        double avgLatitude = sumLatitude / facilities.size();
+
+        this.centroid = new Centroid(avgLongitude, avgLatitude);
+    }
 }
