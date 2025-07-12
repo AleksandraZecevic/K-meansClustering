@@ -8,6 +8,8 @@ import org.Sequential.Centroid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import util.LogLevel;
 import util.Logger;
@@ -103,35 +105,28 @@ public class KmeansP {
     }
 
     private void recalculateCentroidsParallel() {
-      //  Logger.log("recalculateCentroidsParallel - starting recalculation in parallel");
-
-        List<Thread> threads = new ArrayList<>();
+        int numThreads = Runtime.getRuntime().availableProcessors(); // Or just pick a number manually
+        ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 
         for (int i = 0; i < clusters.size(); i++) {
             Cluster cluster = clusters.get(i);
 
-            Thread t = new Thread(() -> {
-                cluster.recalculateCentroid();
-                /*Logger.log("Cluster centroid recalculated at (" +
-                        cluster.getCentroid().getLongitude() + ", " +
-                        cluster.getCentroid().getLatitude() + ")"); */
+            pool.submit(new Runnable() {
+                @Override
+                public void run() {
+                    cluster.recalculateCentroid();
+                }
             });
-
-            threads.add(t);
-            t.start(); // start thread immediately
         }
 
-        // Wait for all threads to finish
-        for (Thread t : threads) {
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                Logger.log("Thread interrupted while recalculating centroids", LogLevel.Error);
-            }
+        pool.shutdown();
+        try {
+            pool.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Logger.log("Thread pool interrupted", LogLevel.Error);
         }
-
-       // Logger.log("recalculateCentroidsParallel - all centroids recalculated", LogLevel.Success);
     }
+
 
     private Cluster findNearestCluster(Facility facility) {
         Cluster nearest = null;
