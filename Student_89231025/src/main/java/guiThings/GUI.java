@@ -93,7 +93,9 @@ public class GUI extends JFrame {
     }
 
     private void openSequential() {
+        //setVisible(false);
         dispose();
+
         Border Crniborder = BorderFactory.createLineBorder(Color.BLACK);
 
         JFrame sequentialFrame = new JFrame("Sequential settings");
@@ -137,6 +139,7 @@ public class GUI extends JFrame {
         panel.add(new JLabel()); // Empty space
         panel.add(confirmButton);
 
+
         sequentialFrame.add(panel);
         sequentialFrame.setVisible(true);
 
@@ -170,7 +173,9 @@ public class GUI extends JFrame {
     }
 
     private void openParallel() {
+        //setVisible(false);
         dispose();
+
         Border Crniborder = BorderFactory.createLineBorder(Color.BLACK);
 
         JFrame parallelFrame = new JFrame("Parallel settings");
@@ -179,26 +184,26 @@ public class GUI extends JFrame {
         parallelFrame.setLocation(200,200);
 
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
-        panel.setBackground(Color.pink);
+        panel.setBackground(Color.getHSBColor(0.78f, 0.5f, 0.7f));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JLabel sitesLabel = new JLabel("Number of Accumulation Sites:");
         JTextField sitesField = new JTextField();
         // editing looks
         sitesField.setBorder(Crniborder);
-        sitesField.setBackground(Color.getHSBColor(100,75,79));
+        sitesField.setBackground(Color.getHSBColor(0.78f, 0.2f, 0.7f));
 
         JLabel clustersLabel = new JLabel("Number of Clusters:");
         JTextField clustersField = new JTextField();
         // editing looks
         clustersField.setBorder(Crniborder);
-        clustersField.setBackground(Color.getHSBColor(100,75,79));
+        clustersField.setBackground(Color.getHSBColor(0.78f, 0.2f, 0.7f));
 
         JLabel cyclesLabel = new JLabel("Number of Cycles:");
         JTextField cyclesField = new JTextField();
         // editing looks
         cyclesField.setBorder(Crniborder);
-        cyclesField.setBackground(Color.getHSBColor(100,75,79));
+        cyclesField.setBackground(Color.getHSBColor(0.78f, 0.2f, 0.7f));
 
         JButton confirmButton = new JButton("Confirm");
 

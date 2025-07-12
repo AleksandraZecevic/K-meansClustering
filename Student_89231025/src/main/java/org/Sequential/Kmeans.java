@@ -44,12 +44,6 @@ public class Kmeans {
             clusters.add(new Cluster(new Centroid(randomFacility.getLongitude(),randomFacility.getLatitude())));
         }
     }
-    /*private double Distance (Facility f1, Facility f2){
-        double dx = f1.getLongitude() - f2.getLongitude();
-        double dy = f1.getLatitude() - f2.getLatitude();
-        return Math.sqrt(dx*dx+dy*dy);
-
-    }*/
 
     private double Distance(Facility facility, Centroid centroid) {
         double dx = facility.getLongitude() - centroid.getLongitude();
@@ -100,24 +94,8 @@ public class Kmeans {
     private void recalculateCentroids() {
         for (int i = 0; i < clusters.size(); i++) {
             Cluster cluster = clusters.get(i);
-            double sumLongitude = 0;
-            double sumLatitude = 0;
-            List<Facility> clusterFacilities = cluster.getFacilities();
 
-            if (clusterFacilities.isEmpty()) {
-                continue; // Skip recalculating this centroid if the cluster is empty
-            }
-
-            for (int j = 0; j < clusterFacilities.size(); j++) {
-                Facility facility = clusterFacilities.get(j);
-                sumLongitude += facility.getLongitude();
-                sumLatitude += facility.getLatitude();
-            }
-
-            // Calculate the new centroid (mean of all the facilities in the cluster)
-            double avgLongitude = sumLongitude / clusterFacilities.size();
-            double avgLatitude = sumLatitude / clusterFacilities.size();
-            cluster.setCentroid(new Centroid(avgLongitude, avgLatitude));
+            cluster.recalculateCentroid(); // prettier this way
         }
     }
 

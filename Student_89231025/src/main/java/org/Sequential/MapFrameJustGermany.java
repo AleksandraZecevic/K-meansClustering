@@ -2,6 +2,7 @@ package org.Sequential;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import guiThings.GUI;
 import org.jxmapviewer.JXMapKit;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.painter.Painter;
@@ -25,6 +26,7 @@ public class MapFrameJustGermany extends JFrame {
 
     private int numFacilities, numClusters, numCycles;
     private boolean isParallel;
+
     public MapFrameJustGermany(int numSites, int numC, int numCy, boolean p) {
         super("K-means clustering");
         setSize(800, 600);

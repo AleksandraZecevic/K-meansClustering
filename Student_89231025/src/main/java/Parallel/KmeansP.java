@@ -66,7 +66,8 @@ public class KmeansP {
       //  Logger.log("assignFacilitiesToClustersParallel - assigning facilities using parallelStream");
 
         // parallelStream() uses the source collection's default Spliterator to split the data source to enable parallel execution
-        facilities.parallelStream().forEach(facility -> {
+        facilities.parallelStream().forEach(facility -> { // divides list ino chunks, usually the num of cores that are available
+            // Each chunk is processed by a worker thread from the common ForkJoinPool
             Cluster closestCluster = null;
             double minDistance = Double.MAX_VALUE;
 
@@ -105,7 +106,7 @@ public class KmeansP {
     }
 
     private void recalculateCentroidsParallel() {
-        int numThreads = Runtime.getRuntime().availableProcessors(); // Or just pick a number manually
+        int numThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 
         for (int i = 0; i < clusters.size(); i++) {

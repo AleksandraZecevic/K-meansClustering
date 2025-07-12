@@ -5,6 +5,7 @@ import java.awt.*;
 
 public class RoundedBorder implements Border {
     // works only when button is clicked
+    // bo ho idk what do to with this
     private final int radius;
 
     public RoundedBorder(int radius) {
