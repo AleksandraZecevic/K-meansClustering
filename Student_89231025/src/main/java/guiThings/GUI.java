@@ -11,7 +11,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.Sequential.MapFrame;
 import org.Sequential.MapFrameJustGermany;
 import util.LogLevel;
 import util.Logger;
