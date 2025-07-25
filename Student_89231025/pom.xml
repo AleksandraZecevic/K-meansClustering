@@ -48,6 +48,13 @@
             <version>1.19.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>mpj</groupId>
+            <artifactId>mpj</artifactId>
+            <version>0.44</version>
+        </dependency>
+
+
     </dependencies>
 
 

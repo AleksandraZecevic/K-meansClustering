@@ -1,8 +1,12 @@
 package org.Sequential;
 
+import basics.Centroid;
+import basics.Cluster;
+import basics.Facility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import guiThings.GUI;
+import modes.Kmeans;
+import modes.KmeansParallel;
 import org.jxmapviewer.JXMapKit;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.painter.Painter;
@@ -80,7 +84,7 @@ public class MapFrameJustGermany extends JFrame {
 
             if (isParallel) {
                 Logger.log("MapFrameJustGermany - Running in PARALLEL mode");
-                Parallel.KmeansP kmeans = new Parallel.KmeansP(numClusters, numCycles, facilities);
+                KmeansParallel kmeans = new KmeansParallel(numClusters, numCycles, facilities);
                 kmeans.run();
 
                 mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() { // retrieves the main map component from the JXMapkit

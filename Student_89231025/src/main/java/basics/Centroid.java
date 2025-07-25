@@ -1,4 +1,4 @@
-package org.Sequential;
+package basics;
 
 public class Centroid {
 

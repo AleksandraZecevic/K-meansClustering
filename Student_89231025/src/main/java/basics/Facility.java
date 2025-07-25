@@ -1,4 +1,4 @@
-package org.Sequential;
+package basics;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

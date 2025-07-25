@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.io.IOException;
 
-import org.Sequential.MapPanelJustGermany;
+import basics.MapPanelJustGermany;
 import util.LogLevel;
 import util.Logger;
 
@@ -72,10 +72,10 @@ public class Menu extends JFrame {
         mapContainerPanel.setBackground(Color.WHITE);
         add(mapContainerPanel, BorderLayout.CENTER);
 
-        sequentialButton.addActionListener(e -> openInputDialog("Sequential", false));
-        parallelButton.addActionListener(e -> openInputDialog("Parallel", true));
-        distributedButton.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Distributed mode is under development."));
+        sequentialButton.addActionListener(e -> openInputDialog("Sequential", false, false));
+        parallelButton.addActionListener(e -> openInputDialog("Parallel", true, false));
+        distributedButton.addActionListener(e -> openInputDialog("Distributed", false, true));
+        //distributedButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Distributed mode is under development."));
 
         clearMapButton.addActionListener(e -> {
             mapContainerPanel.removeAll();
@@ -109,7 +109,7 @@ public class Menu extends JFrame {
         }
     }
 
-    private void openInputDialog(String modeName, boolean isParallel) {
+    private void openInputDialog(String modeName, boolean isParallel, boolean isDistributed) {
 
         JDialog settingsDialog = new JDialog(this, modeName + " Settings", true);
         settingsDialog.setSize(400, 300);
@@ -118,6 +118,7 @@ public class Menu extends JFrame {
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         panel.setBackground(isParallel ? new Color(200, 180, 240) : Color.PINK);
+        panel.setBackground(isDistributed ? new Color(200, 180, 240) : Color.LIGHT_GRAY);
 
         Border border = BorderFactory.createLineBorder(Color.BLACK);
 
@@ -153,14 +154,22 @@ public class Menu extends JFrame {
 
                 settingsDialog.dispose();
 
-                MapPanelJustGermany newMapPanel = new MapPanelJustGermany(numSites, numClusters, numCycles, isParallel);
+                MapPanelJustGermany newMapPanel;
+
+                if (isDistributed) {
+                    // Pass true for distributed mode, false for parallel in MapPanelJustGermany constructor
+                    newMapPanel = new MapPanelJustGermany(numSites, numClusters, numCycles, false, true);
+                } else {
+                    // existing parallel or sequential
+                    newMapPanel = new MapPanelJustGermany(numSites, numClusters, numCycles, isParallel, false);
+                }
 
                 mapContainerPanel.removeAll();
                 mapContainerPanel.add(newMapPanel, BorderLayout.CENTER);
                 mapContainerPanel.revalidate();
                 mapContainerPanel.repaint();
 
-                String modeText = isParallel ? "Parallel" : "Sequential";
+                String modeText = isDistributed ? "Distributed" : (isParallel ? "Parallel" : "Sequential");
                 statusLabel.setText("Running in " + modeText + " mode with " +
                         numSites + " sites, " + numClusters + " clusters, " + numCycles + " cycles.");
 

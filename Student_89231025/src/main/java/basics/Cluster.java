@@ -1,4 +1,5 @@
-package org.Sequential;
+package basics;
+
 import java.util.ArrayList;
 import java.util.List;
 public class Cluster {

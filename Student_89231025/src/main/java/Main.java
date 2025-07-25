@@ -1,15 +1,12 @@
-import guiThings.GUI;
 import guiThings.Menu;
 import util.Logger;
 
 public class Main {
     public static void main(String[] args) {
         Logger.log("Main");
-        //new MapFrame();
-        //GUI gui = new GUI();
-        //gui.setVisible(true);
-        Menu m = new Menu();
-        m.setVisible(true);
+
+        Menu menu = new Menu();
+        menu.setVisible(true);
 
         // note for professor
         // I added internet checking because map cannot load without it and code would break

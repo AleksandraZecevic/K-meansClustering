@@ -1,7 +1,11 @@
 package org.Sequential;
 
+import basics.Centroid;
+import basics.Cluster;
+import basics.Facility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import modes.Kmeans;
 import org.jxmapviewer.JXMapKit;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.painter.Painter;
@@ -18,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 public class MapFrame extends JFrame {
     private JXMapKit mapKit;

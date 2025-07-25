@@ -1,9 +1,10 @@
-package Parallel;
+package modes;
 
-// cause the classes are in Sequential package, bad organization
-import org.Sequential.Cluster;
-import org.Sequential.Facility;
-import org.Sequential.Centroid;
+import basics.Centroid;
+import basics.Cluster;
+import basics.Facility;
+import util.LogLevel;
+import util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import util.LogLevel;
-import util.Logger;
-
-public class KmeansP {
+public class KmeansParallel {
     private final int numOfClusters; // Number of clusters
     private final int maxCycles;
     private final List<Facility> facilities; // Input facilities - in our case read from JSON file
@@ -22,7 +20,7 @@ public class KmeansP {
 
     private static final int SEED = 17;
 
-    public KmeansP(int nc, int mc, List<Facility> f){
+    public KmeansParallel(int nc, int mc, List<Facility> f){
         this.numOfClusters = nc;
         this.maxCycles=mc;
         this.facilities=f;

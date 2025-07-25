@@ -1,5 +1,8 @@
-package org.Sequential;
+package modes;
 
+import basics.Centroid;
+import basics.Cluster;
+import basics.Facility;
 import util.LogLevel;
 import util.Logger;
 
