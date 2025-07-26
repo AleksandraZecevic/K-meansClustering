@@ -17,14 +17,37 @@ public class Logger {
         String timestamp = dateFormat.format(System.currentTimeMillis());
         String messagePrefix = "[" + timestamp + "][" + threadName + "] " + level + ": ";
 
-        switch (level) {
+        // changed cause for some reason I HAD TO SWITCH FROM JDK AND SDK 21 TO JDK AND SDK 8
+       /* switch (level) {
             case Info -> messagePrefix = INFO + messagePrefix + RESET;
             case Warn -> messagePrefix = WARN + messagePrefix + RESET;
             case Error -> messagePrefix = ERROR + messagePrefix + RESET;
             case Debug -> messagePrefix = DEBUG + messagePrefix + RESET;
             case Status -> messagePrefix = STATUS + messagePrefix + RESET;
             case Success -> messagePrefix = SUCCESS + messagePrefix + RESET;
+        }*/
+
+        switch (level) {
+            case Info:
+                messagePrefix = INFO + messagePrefix + RESET;
+                break;
+            case Warn:
+                messagePrefix = WARN + messagePrefix + RESET;
+                break;
+            case Error:
+                messagePrefix = ERROR + messagePrefix + RESET;
+                break;
+            case Debug:
+                messagePrefix = DEBUG + messagePrefix + RESET;
+                break;
+            case Status:
+                messagePrefix = STATUS + messagePrefix + RESET;
+                break;
+            case Success:
+                messagePrefix = SUCCESS + messagePrefix + RESET;
+                break;
         }
+
 
         System.out.println(messagePrefix  + msg);
     }

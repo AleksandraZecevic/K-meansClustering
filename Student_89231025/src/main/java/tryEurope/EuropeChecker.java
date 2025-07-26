@@ -1,23 +1,11 @@
 package tryEurope;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.locationtech.jts.geom.*;
-import util.LogLevel;
-import util.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 public class EuropeChecker {
 
     // MORE RESEARCH NEEDED, IGNORE IT DOESN'T WORK
     // honestly had a fight with AI cause of this one
 
-    private static final String countryLinesPath = "C:\\Users\\PC-2\\Desktop\\89231025_K-meansClustering\\tryEurope\\countryLines.json";
+  /*  private static final String countryLinesPath = "C:\\Users\\PC-2\\Desktop\\89231025_K-meansClustering\\tryEurope\\countryLines.json";
     private static final String landPath = "C:\\Users\\PC-2\\Desktop\\89231025_K-meansClustering\\tryEurope\\land.json";
 
     private static final List<List<double[]>> europePolygons = new ArrayList<>();
@@ -170,6 +158,6 @@ public class EuropeChecker {
         }
 
         return false; // Point is not inside any polygon
-    }
+    }*/
 
 }

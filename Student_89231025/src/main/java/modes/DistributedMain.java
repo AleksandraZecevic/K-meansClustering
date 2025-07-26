@@ -14,37 +14,49 @@ public class DistributedMain {
         MPI.Init(args);
         int rank = MPI.COMM_WORLD.Rank();
 
-        // Declare and initialize parameters with default values
-        int numFacilities = 100;  // default number of facilities
-        int numClusters = 10;     // default number of clusters
-        int maxCycles = 100;      // default max cycles
+        int numFacilities = 100;  // default
+        int numClusters = 10;
+        int maxCycles = 100;
+        String jsonPath = "germany/germany.json"; // default relative path
 
-        // Parse args if provided
         if (args.length >= 3) {
             try {
                 numFacilities = Integer.parseInt(args[0]);
                 numClusters = Integer.parseInt(args[1]);
                 maxCycles = Integer.parseInt(args[2]);
             } catch (NumberFormatException e) {
-                if (rank == 0) {
-                    System.err.println("Invalid input arguments, using default parameters.");
+                if (MPI.COMM_WORLD.Rank() == 0) {
+                    System.err.println("Invalid numeric input arguments, using defaults.");
                 }
             }
         }
+
+        if (args.length >= 4) {
+            jsonPath = args[3];
+        }
+
 
         List<Facility> facilities = null;
 
         if (rank == 0) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                facilities = mapper.readValue(
-                        new File("germany/germany.json"),
-                        new TypeReference<List<Facility>>() {});
-
-                // Trim or extend facilities to requested number
-                if (facilities.size() > numFacilities) {
-                    facilities = facilities.subList(0, numFacilities);
+                File file = new File(jsonPath);
+                if (!file.exists()) {
+                    System.err.println("File not found: " + file.getAbsolutePath());
+                    MPI.Finalize();
+                    return;
                 }
+                facilities = mapper.readValue(file, new TypeReference<List<Facility>>() {});
+
+
+                if (facilities.size() < numFacilities) {
+                    System.err.println("Warning: Only " + facilities.size() + " facilities found. Requested " + numFacilities);
+                    // Either throw, or just proceed with fewer
+                    numFacilities = facilities.size();
+                }
+                facilities = facilities.subList(0, numFacilities);
+
 
                 System.out.println("Loaded " + facilities.size() + " facilities.");
             } catch (Exception e) {

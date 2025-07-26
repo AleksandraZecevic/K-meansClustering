@@ -86,20 +86,26 @@ public class MapPanelJustGermany extends JPanel {
             if (isDistributed) {
                 Logger.log("MapFrameJustGermany - Running in DISTRIBUTED mode");
                 try {
-                    String classpath = "C:\\Users\\PC-2\\Desktop\\K-meansClustering\\out\\production\\89231025_K-meansClustering;"
-                            + "C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\lib\\mpi.jar;"
-                            + "C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\lib\\mpj.jar";
+                    String classpath = "C:\\Users\\PC-2\\Desktop\\K-meansClustering\\Student_89231025\\target\\classes;" +
+                            "C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\lib\\mpi.jar;" +
+                            "C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\lib\\mpj.jar;" +
+                            "C:\\Users\\PC-2\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-annotations\\2.13.3\\jackson-annotations-2.13.3.jar;" +
+                            "C:\\Users\\PC-2\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-core\\2.13.3\\jackson-core-2.13.3.jar;" +
+                            "C:\\Users\\PC-2\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-databind\\2.13.3\\jackson-databind-2.13.3.jar";
 
-                    String command = "mpjrun -np 4 -classpath \"" + classpath + "\" modes.DistributedMain " +
-                            numFacilities + " " + numClusters + " " + numCycles;
+                    String jsonPath = "C:/Users/PC-2/Desktop/K-meansClustering/germany/germany.json";
+
+                    String command = "\"C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\bin\\mpjrun.bat\" -np 4 -classpath \"" +
+                            classpath + "\" modes.DistributedMain " +
+                            numFacilities + " " + numClusters + " " + numCycles + " \"" + jsonPath + "\"";
 
 
-
+                    System.out.println("Command to run: " + command);
 
                     Process process = Runtime.getRuntime().exec(command);
 
                     // Optionally read process output or errors
-                    new Thread(() -> {
+                  /*  new Thread(() -> {
                         try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                             String line;
                             while ((line = reader.readLine()) != null) {
@@ -108,7 +114,31 @@ public class MapPanelJustGermany extends JPanel {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    }).start();*/
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            BufferedReader reader = null;
+                            try {
+                                reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    Logger.log("[MPI] " + line, LogLevel.Status);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                if (reader != null) {
+                                    try {
+                                        reader.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
                     }).start();
+
 
                     int exitCode = process.waitFor();
                     Logger.log("Distributed job finished with exit code " + exitCode, LogLevel.Success);

@@ -122,6 +122,11 @@ public class KmeansDistributed {
     }
 
     private void initializeCentroids() {
+        if (facilities.size() < numOfClusters) {
+            throw new IllegalArgumentException("Not enough facilities to initialize centroids. " +
+                    "Need at least " + numOfClusters + ", but got " + facilities.size());
+        }
+
         Random r = new Random(SEED);
         clusters.clear();
         for (int i = 0; i < numOfClusters; i++) {
@@ -129,6 +134,7 @@ public class KmeansDistributed {
             clusters.add(new Cluster(new Centroid(f.getLongitude(), f.getLatitude())));
         }
     }
+
 
     private double distance(Facility facility, Centroid centroid) {
         double dx = facility.getLongitude() - centroid.getLongitude();
