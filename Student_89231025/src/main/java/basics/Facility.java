@@ -1,8 +1,14 @@
 package basics;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-public class Facility {
+// Serializable is a marker interface in Java.
+// It doesn’t have any methods you need to implement — it just marks a class as being able to be converted into a stream of bytes**, which can then be saved to a file, sent over a network, or used for inter-process communication.
+
+public class Facility implements Serializable{
+
+    private static final long serialVersionUID = 1L;
     // {"name":"Lindenau","capacity":13.94121244509,"la":"51.4","lo":"13.7333"}
     private String name;
     private int capacity;

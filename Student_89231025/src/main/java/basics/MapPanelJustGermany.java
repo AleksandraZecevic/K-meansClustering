@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -86,64 +87,87 @@ public class MapPanelJustGermany extends JPanel {
             if (isDistributed) {
                 Logger.log("MapFrameJustGermany - Running in DISTRIBUTED mode");
                 try {
-                    String classpath = "C:\\Users\\PC-2\\Desktop\\K-meansClustering\\Student_89231025\\target\\classes;" +
-                            "C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\lib\\mpi.jar;" +
-                            "C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\lib\\mpj.jar;" +
-                            "C:\\Users\\PC-2\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-annotations\\2.13.3\\jackson-annotations-2.13.3.jar;" +
-                            "C:\\Users\\PC-2\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-core\\2.13.3\\jackson-core-2.13.3.jar;" +
-                            "C:\\Users\\PC-2\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-databind\\2.13.3\\jackson-databind-2.13.3.jar";
+                    String classpath = String.join(";", Arrays.asList(
+                            "Student_89231025/target/classes",
+                            "biblioteke/mpj.jar",
+                            "biblioteke/mpi.jar",
+                            "biblioteke/mpjbuf.jar",
+                            "biblioteke/jackson-core-2.13.3.jar",
+                            "biblioteke/jackson-databind-2.13.3.jar",
+                            "biblioteke/jackson-annotations-2.13.3.jar",
+                            "biblioteke/log4j-1.2.17.jar",
+                            "biblioteke/commons-logging-1.1.3.jar"
+                    ));
 
-                    String jsonPath = "C:/Users/PC-2/Desktop/K-meansClustering/germany/germany.json";
+                    String jsonPath = "germany/germany.json";
 
-                    String command = "\"C:\\Users\\PC-2\\Downloads\\mpj-v0_44\\bin\\mpjrun.bat\" -np 4 -classpath \"" +
-                            classpath + "\" modes.DistributedMain " +
-                            numFacilities + " " + numClusters + " " + numCycles + " \"" + jsonPath + "\"";
+                    String mpjrunPath = new File("biblioteke/mpjrun.bat").getAbsolutePath();
 
+                    String[] command = {
+                            "cmd.exe", "/c",
+                            mpjrunPath,
+                            "-np", "4",
+                            "-cp", classpath,
+                            "modes.DistributedMain",
+                            String.valueOf(numFacilities),
+                            String.valueOf(numClusters),
+                            String.valueOf(numCycles),
+                            jsonPath
+                    };
 
-                    System.out.println("Command to run: " + command);
+                    System.out.println("[Debug] Full distributed command:");
+                    System.out.println(String.join(" ", command));
 
-                    Process process = Runtime.getRuntime().exec(command);
+                    ProcessBuilder pb = new ProcessBuilder(command);
+                    pb.directory(new File("C:\\Users\\PC-2\\Desktop\\K-meansClustering")); // ROOT DIRECTORY OF THE PROJECT
+                    Process process = pb.start();
 
-                    // Optionally read process output or errors
-                  /*  new Thread(() -> {
-                        try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                Logger.log("[MPI] " + line, LogLevel.Status);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }).start();*/
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            BufferedReader reader = null;
-                            try {
-                                reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                                 String line;
                                 while ((line = reader.readLine()) != null) {
                                     Logger.log("[MPI] " + line, LogLevel.Status);
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
-                            } finally {
-                                if (reader != null) {
-                                    try {
-                                        reader.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
                             }
                         }
                     }).start();
 
-
                     int exitCode = process.waitFor();
-                    Logger.log("Distributed job finished with exit code " + exitCode, LogLevel.Success);
+                    System.out.println("MPJ run finished with exit code: " + exitCode);
 
-                    // Here you would load and display results (e.g. from a file generated by DistributedMain)
+                    // Load distributed clustering results from file and draw them
+                    ObjectMapper resultMapper = new ObjectMapper();
+                    File resultFile = new File("jole/clusters.json");
+
+                    if (resultFile.exists()) {
+                        List<Cluster> resultClusters = resultMapper.readValue(
+                                resultFile, new TypeReference<List<Cluster>>() {});
+
+                        mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() {
+                            @Override
+                            public void paint(Graphics2D g, JComponent jComponent, int width, int height) {
+                                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                                for (int i = 0; i < resultClusters.size(); i++) {
+                                    Cluster cluster = resultClusters.get(i);
+                                    Color clusterColor = getColorForCluster(i);
+
+                                    for (Facility facility : cluster.getFacilities()) {
+                                        drawPoint(g, mapKit, facility, clusterColor);
+                                    }
+
+                                    drawCentroid(g, mapKit, cluster.getCentroid(), clusterColor);
+                                }
+                            }
+                        });
+                    } else {
+                        Logger.log("jole/clusters.json not found. Cannot draw distributed results", LogLevel.Error);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(this, "Failed to run distributed job: " + e.getMessage(),

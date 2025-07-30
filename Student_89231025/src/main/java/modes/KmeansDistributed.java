@@ -135,6 +135,10 @@ public class KmeansDistributed {
         }
     }
 
+    public List<Cluster> getClusters() {
+        return clusters;
+    }
+
 
     private double distance(Facility facility, Centroid centroid) {
         double dx = facility.getLongitude() - centroid.getLongitude();

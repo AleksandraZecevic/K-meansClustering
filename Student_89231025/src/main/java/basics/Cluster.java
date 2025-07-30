@@ -1,11 +1,18 @@
 package basics;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-public class Cluster {
 
+public class Cluster implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Centroid centroid;          // centroid that's closest to a cluster
     private List<Facility> facilities; // facilities assigned to this cluster
+
+    public Cluster() {
+        // Required for Jackson
+        this.facilities = new ArrayList<>();
+    }
 
     public Cluster(Centroid centroid) {
         this.centroid = centroid;
