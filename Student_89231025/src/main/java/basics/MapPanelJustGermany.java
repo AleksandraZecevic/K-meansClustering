@@ -33,15 +33,16 @@ public class MapPanelJustGermany extends JPanel {
 
     private int numFacilities, numClusters, numCycles;
     private boolean isParallel;
-
     private boolean isDistributed;
+    private int numMPIprocesses;
 
-    public MapPanelJustGermany(int numSites, int numC, int numCy, boolean p, boolean d) {
+    public MapPanelJustGermany(int numSites, int numC, int numCy, boolean p, boolean d, int nmp) {
         this.numFacilities = numSites;
         this.numClusters = numC;
         this.numCycles = numCy;
         this.isParallel = p;
         this.isDistributed = d;
+        this.numMPIprocesses = nmp;
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(800, 600));
@@ -106,7 +107,7 @@ public class MapPanelJustGermany extends JPanel {
                     String[] command = {
                             "cmd.exe", "/c",
                             mpjrunPath,
-                            "-np", "4",
+                            "-np", String.valueOf(numMPIprocesses),
                             "-cp", classpath,
                             "modes.DistributedMain",
                             String.valueOf(numFacilities),
@@ -119,7 +120,7 @@ public class MapPanelJustGermany extends JPanel {
                     System.out.println(String.join(" ", command));
 
                     ProcessBuilder pb = new ProcessBuilder(command);
-                    pb.directory(new File("C:\\Users\\PC-2\\Desktop\\K-meansClustering")); // ROOT DIRECTORY OF THE PROJECT
+                    pb.directory(new File(System.getProperty("user.dir")));
                     Process process = pb.start();
 
                     new Thread(new Runnable() {

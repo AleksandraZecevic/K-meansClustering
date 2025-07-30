@@ -132,6 +132,7 @@ public class Menu extends JFrame {
         JTextField sitesField = new JTextField();
         JTextField clustersField = new JTextField();
         JTextField cyclesField = new JTextField();
+        JTextField mpiProcessesField = new JTextField();
 
         sitesField.setBorder(border);
         clustersField.setBorder(border);
@@ -144,16 +145,39 @@ public class Menu extends JFrame {
         panel.add(new JLabel("Number of Cycles:"));
         panel.add(cyclesField);
 
+        if(isDistributed){
+            mpiProcessesField.setBorder(border);
+            panel.setLayout(new GridLayout(5, 2, 10, 10));
+            panel.add(new JLabel("Number of MPI Processes:"));
+            panel.add(mpiProcessesField);
+        }
+
         JButton confirmButton = new JButton("Confirm");
         panel.add(new JLabel()); // placeholder
         panel.add(confirmButton);
 
         confirmButton.addActionListener((ActionEvent e) -> {
+            int mpiProcesses = 1;
             Logger.log("Confirm button pressed", LogLevel.Status);
             try {
                 int numSites = Integer.parseInt(sitesField.getText());
                 int numClusters = Integer.parseInt(clustersField.getText());
                 int numCycles = Integer.parseInt(cyclesField.getText());
+
+                if(isDistributed){
+                    int availableProcessors = Runtime.getRuntime().availableProcessors();
+                    try{
+                        mpiProcesses = Integer.parseInt(mpiProcessesField.getText());
+                        if (mpiProcesses < 1 || mpiProcesses > availableProcessors) {
+                            throw new NumberFormatException("MPI process count invalid");
+                        }
+                    }catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(settingsDialog,
+                                "Number of MPI processes must be between 1 and " + availableProcessors,
+                                "Input Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
 
                 if (numSites <= 0 || numClusters <= 0 || numCycles <= 0 || numClusters > numSites) {
                     throw new NumberFormatException("Invalid values");
@@ -166,7 +190,8 @@ public class Menu extends JFrame {
                         numClusters,
                         numCycles,
                         isParallel,
-                        isDistributed
+                        isDistributed,
+                        mpiProcesses
                 );
 
                 mapContainerPanel.removeAll();
