@@ -5,6 +5,8 @@ import basics.Facility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mpi.MPI;
+import util.LogLevel;
+import util.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,9 +14,6 @@ import java.util.List;
 import java.util.Arrays;
 
 public class DistributedMain {
-    static {
-        System.out.println(">>> DistributedMain loaded and about to start");
-    }
     public static void main(String[] args) {
         /* skipping first 3 cause mpi sends these
         Arguments received:
@@ -34,10 +33,10 @@ public class DistributedMain {
         int userArgsStartIndex = 3; // skip MPJ internal args
 
         if (rank == 0) {
-            System.out.println("Arguments received:");
+           /* System.out.println("Arguments received:");
             for (int i = 0; i < args.length; i++) {
                 System.out.println(i + ": '" + args[i] + "'");
-            }
+            }*/
 
             int userArgsCount = args.length - userArgsStartIndex;
             try {
@@ -85,16 +84,18 @@ public class DistributedMain {
         numClusters = intParams[1];
         maxCycles = intParams[2];
 
+        /*
         System.out.println("Rank " + rank + " using parameters:");
         System.out.println("numFacilities = " + numFacilities);
         System.out.println("numClusters = " + numClusters);
         System.out.println("maxCycles = " + maxCycles);
         System.out.println("jsonPath = " + jsonPath);
-
+        */
 
         List<Facility> facilities = null;
-
+        long startTime = 0;
         if (rank == 0) {
+            startTime = System.currentTimeMillis();
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 File file = new File(jsonPath);
@@ -104,7 +105,6 @@ public class DistributedMain {
                     return;
                 }
                 facilities = mapper.readValue(file, new TypeReference<List<Facility>>() {});
-
 
                 if (facilities.size() < numFacilities) {
                     System.err.println("Warning: Only " + facilities.size() + " facilities found. Requested " + numFacilities);
@@ -145,11 +145,13 @@ public class DistributedMain {
         KmeansDistributed distributed = new KmeansDistributed(numClusters, maxCycles, facilities);
         distributed.runDistributed();
 
-        System.out.println("Rank = " + rank);
+      //  System.out.println("Rank = " + rank);
         List<Cluster> finalClusters = distributed.getClusters();
-        System.out.println("finalClusters is " + (finalClusters == null ? "null" : ("size = " + finalClusters.size())));
+     //   System.out.println("finalClusters is " + (finalClusters == null ? "null" : ("size = " + finalClusters.size())));
 
         if (rank == 0) {
+            long endTime = System.currentTimeMillis();
+            Logger.log("Distributed run: Time for " + maxCycles + " cycles, " + numClusters + " clusters is " + (endTime - startTime) + "ms", LogLevel.Success);
             ObjectMapper mapper = new ObjectMapper();
 
             System.out.println("Working directory: " + System.getProperty("user.dir"));

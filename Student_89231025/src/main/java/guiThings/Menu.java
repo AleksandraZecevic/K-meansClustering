@@ -117,8 +117,15 @@ public class Menu extends JFrame {
 
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        panel.setBackground(isParallel ? new Color(200, 180, 240) : Color.PINK);
-        panel.setBackground(isDistributed ? new Color(200, 180, 240) : Color.LIGHT_GRAY);
+
+        // Correct background coloring
+        if (isDistributed) {
+            panel.setBackground(new Color(200, 180, 240)); // Light purple for distributed
+        } else if (isParallel) {
+            panel.setBackground(new Color(180, 230, 250)); // Light blue for parallel
+        } else {
+            panel.setBackground(Color.PINK);
+        }
 
         Border border = BorderFactory.createLineBorder(Color.BLACK);
 
@@ -138,7 +145,7 @@ public class Menu extends JFrame {
         panel.add(cyclesField);
 
         JButton confirmButton = new JButton("Confirm");
-        panel.add(new JLabel()); // empty space
+        panel.add(new JLabel()); // placeholder
         panel.add(confirmButton);
 
         confirmButton.addActionListener((ActionEvent e) -> {
@@ -154,15 +161,13 @@ public class Menu extends JFrame {
 
                 settingsDialog.dispose();
 
-                MapPanelJustGermany newMapPanel;
-
-                if (isDistributed) {
-                    // Pass true for distributed mode, false for parallel in MapPanelJustGermany constructor
-                    newMapPanel = new MapPanelJustGermany(numSites, numClusters, numCycles, false, true);
-                } else {
-                    // existing parallel or sequential
-                    newMapPanel = new MapPanelJustGermany(numSites, numClusters, numCycles, isParallel, false);
-                }
+                MapPanelJustGermany newMapPanel = new MapPanelJustGermany(
+                        numSites,
+                        numClusters,
+                        numCycles,
+                        isParallel,
+                        isDistributed
+                );
 
                 mapContainerPanel.removeAll();
                 mapContainerPanel.add(newMapPanel, BorderLayout.CENTER);
@@ -175,7 +180,7 @@ public class Menu extends JFrame {
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(settingsDialog,
-                        "Please enter valid positive numbers.\n(Clusters ≤ Sites)",
+                        "Please enter valid positive numbers.",
                         "Input Error", JOptionPane.ERROR_MESSAGE);
                 sitesField.setText("");
                 clustersField.setText("");
@@ -186,4 +191,5 @@ public class Menu extends JFrame {
         settingsDialog.add(panel);
         settingsDialog.setVisible(true);
     }
+
 }

@@ -27,6 +27,8 @@ public class KmeansDistributed {
     }
 
     public void runDistributed() {
+
+
         int rank = MPI.COMM_WORLD.Rank();
         int size = MPI.COMM_WORLD.Size();
 
@@ -46,7 +48,7 @@ public class KmeansDistributed {
 
         if (rank == 0) {
             initializeCentroids();
-            Logger.log("Centroids initialized on rank 0", LogLevel.Status);
+          //  Logger.log("Centroids initialized on rank 0", LogLevel.Status);
         }
 
         // Broadcast initial clusters to all processes
@@ -58,7 +60,7 @@ public class KmeansDistributed {
         clusters = new ArrayList<>(Arrays.asList(clusterArray));
 
         for (int cycle = 0; cycle < maxCycles; cycle++) {
-            Logger.log("Cycle " + cycle + " started on rank " + rank, LogLevel.Status);
+           // Logger.log("Cycle " + cycle + " started on rank " + rank, LogLevel.Status);
 
             // Local accumulators for sums and counts per cluster
             double[] sumLat = new double[numOfClusters];
@@ -98,10 +100,21 @@ public class KmeansDistributed {
             // Broadcast updated clusters to all processes
             MPI.COMM_WORLD.Bcast(clusterArray, 0, numOfClusters, MPI.OBJECT, 0);
             clusters = new ArrayList<>(Arrays.asList(clusterArray));
+
         }
 
         if (rank == 0) {
-            Logger.log("Distributed K-means completed successfully.", LogLevel.Success);
+            // Clear previous facility assignments
+            for (Cluster c : clusters) {
+                c.getFacilities().clear();
+            }
+
+            // Re-assign all facilities to their nearest cluster based on final centroids
+            for (Facility f : facilities) {
+                int nearestIdx = findNearestClusterIndex(f);
+                clusters.get(nearestIdx).getFacilities().add(f);
+            }
+            Logger.log("Distributed K-means completed successfully. Facilities assigned to clusters.", LogLevel.Success);
         }
     }
 
