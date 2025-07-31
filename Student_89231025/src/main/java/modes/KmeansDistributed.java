@@ -152,16 +152,16 @@ public class KmeansDistributed {
         return clusters;
     }
 
-
-    private double distance(Facility facility, Centroid centroid) {
-        double dx = facility.getLongitude() - centroid.getLongitude();
-        double dy = facility.getLatitude() - centroid.getLatitude();
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (Double.isNaN(dist) || Double.isInfinite(dist)) {
-            Logger.log("Invalid distance computed between facility and centroid", LogLevel.Error);
-        }
-
-        return dist;
+//haversine distance now
+    private double distance(Facility f, Centroid c) {
+        final int R = 6371; // Earth radius in km
+        double latDistance = Math.toRadians(c.getLatitude() - f.getLatitude());
+        double lonDistance = Math.toRadians(c.getLongitude() - f.getLongitude());
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(f.getLatitude())) * Math.cos(Math.toRadians(c.getLatitude()))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double cVal = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * cVal;
     }
+
 }

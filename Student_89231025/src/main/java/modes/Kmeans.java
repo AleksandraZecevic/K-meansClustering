@@ -48,18 +48,17 @@ public class Kmeans {
         }
     }
 
-    private double Distance(Facility facility, Centroid centroid) {
-        double dx = facility.getLongitude() - centroid.getLongitude();
-        double dy = facility.getLatitude() - centroid.getLatitude();
-
-        double distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (Double.isNaN(distance) || Double.isInfinite(distance)){
-            Logger.log("Invalid Distance for Facility: (" + facility.getLongitude() + ", " + facility.getLatitude() + "and Centroid: (" + centroid.getLongitude() + ", " + centroid.getLatitude() + ")", LogLevel.Error);
-        }
-
-        return distance;
+    private double Distance(Facility f, Centroid c) {
+        final int R = 6371; // Earth radius in km
+        double latDistance = Math.toRadians(c.getLatitude() - f.getLatitude());
+        double lonDistance = Math.toRadians(c.getLongitude() - f.getLongitude());
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(f.getLatitude())) * Math.cos(Math.toRadians(c.getLatitude()))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double cVal = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * cVal;
     }
+
 
     private void assignFacilitiesToClusters() {
         // start with empty clusters always

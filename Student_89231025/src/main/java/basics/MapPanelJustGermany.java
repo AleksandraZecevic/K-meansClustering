@@ -35,14 +35,16 @@ public class MapPanelJustGermany extends JPanel {
     private boolean isParallel;
     private boolean isDistributed;
     private int numMPIprocesses;
+    private String OS;
 
-    public MapPanelJustGermany(int numSites, int numC, int numCy, boolean p, boolean d, int nmp) {
+    public MapPanelJustGermany(int numSites, int numC, int numCy, boolean p, boolean d, int nmp, String selectedOS) {
         this.numFacilities = numSites;
         this.numClusters = numC;
         this.numCycles = numCy;
         this.isParallel = p;
         this.isDistributed = d;
         this.numMPIprocesses = nmp;
+        this.OS = selectedOS;
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(800, 600));
@@ -88,6 +90,7 @@ public class MapPanelJustGermany extends JPanel {
             if (isDistributed) {
                 Logger.log("MapFrameJustGermany - Running in DISTRIBUTED mode");
                 try {
+
                     String classpath = String.join(";", Arrays.asList(
                             "Student_89231025/target/classes",
                             "biblioteke/mpj.jar",
@@ -102,9 +105,42 @@ public class MapPanelJustGermany extends JPanel {
 
                     String jsonPath = "germany/germany.json";
 
-                    String mpjrunPath = new File("biblioteke/mpjrun.bat").getAbsolutePath();
+                    //String mpjrunPath = new File("biblioteke/mpjrun.bat").getAbsolutePath();
 
-                    String[] command = {
+                    String mpjrunPath;
+                    String[] command;
+
+                    if (OS.equalsIgnoreCase("Windows")) {
+                        mpjrunPath = new File("biblioteke/mpjrun.bat").getAbsolutePath();
+
+                        command = new String[] {
+                                "cmd.exe", "/c",
+                                mpjrunPath,
+                                "-np", String.valueOf(numMPIprocesses),
+                                "-cp", classpath,
+                                "modes.DistributedMain",
+                                String.valueOf(numFacilities),
+                                String.valueOf(numClusters),
+                                String.valueOf(numCycles),
+                                jsonPath
+                        };
+                    } else {
+                        mpjrunPath = new File("biblioteke/mpjrun.sh").getAbsolutePath();
+
+                        command = new String[] {
+                                "/bin/bash",
+                                mpjrunPath,
+                                "-np", String.valueOf(numMPIprocesses),
+                                "-cp", classpath.replace(";", ":"),  // fix classpath for Unix
+                                "modes.DistributedMain",
+                                String.valueOf(numFacilities),
+                                String.valueOf(numClusters),
+                                String.valueOf(numCycles),
+                                jsonPath
+                        };
+                    }
+
+                 /*   String[] command = {
                             "cmd.exe", "/c",
                             mpjrunPath,
                             "-np", String.valueOf(numMPIprocesses),
@@ -114,7 +150,7 @@ public class MapPanelJustGermany extends JPanel {
                             String.valueOf(numClusters),
                             String.valueOf(numCycles),
                             jsonPath
-                    };
+                    }; */
 
                     System.out.println("[Debug] Full distributed command:");
                     System.out.println(String.join(" ", command));
@@ -173,6 +209,7 @@ public class MapPanelJustGermany extends JPanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(this, "Failed to run distributed job: " + e.getMessage(),
                             "Error", JOptionPane.ERROR_MESSAGE);
+                    System.exit(1);
                 }
             } else if (isParallel) {
                 Logger.log("MapFrameJustGermany - Running in PARALLEL mode");

@@ -134,6 +134,9 @@ public class Menu extends JFrame {
         JTextField cyclesField = new JTextField();
         JTextField mpiProcessesField = new JTextField();
 
+        String[] osOptions = { "Linux/macOS", "Windows" };
+        JComboBox<String> osDropdown = new JComboBox<>(osOptions);
+
         sitesField.setBorder(border);
         clustersField.setBorder(border);
         cyclesField.setBorder(border);
@@ -147,9 +150,13 @@ public class Menu extends JFrame {
 
         if(isDistributed){
             mpiProcessesField.setBorder(border);
-            panel.setLayout(new GridLayout(5, 2, 10, 10));
+            panel.setLayout(new GridLayout(6, 2, 10, 10));
             panel.add(new JLabel("Number of MPI Processes:"));
             panel.add(mpiProcessesField);
+
+            // OS Dropdown
+            panel.add(new JLabel("Operating System:"));
+            panel.add(osDropdown);
         }
 
         JButton confirmButton = new JButton("Confirm");
@@ -163,8 +170,9 @@ public class Menu extends JFrame {
                 int numSites = Integer.parseInt(sitesField.getText());
                 int numClusters = Integer.parseInt(clustersField.getText());
                 int numCycles = Integer.parseInt(cyclesField.getText());
-
+                String selectedOS = "N/A";
                 if(isDistributed){
+                    selectedOS = (String) osDropdown.getSelectedItem();
                     int availableProcessors = Runtime.getRuntime().availableProcessors();
                     try{
                         mpiProcesses = Integer.parseInt(mpiProcessesField.getText());
@@ -191,7 +199,8 @@ public class Menu extends JFrame {
                         numCycles,
                         isParallel,
                         isDistributed,
-                        mpiProcesses
+                        mpiProcesses,
+                        selectedOS
                 );
 
                 mapContainerPanel.removeAll();

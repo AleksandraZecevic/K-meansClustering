@@ -60,47 +60,56 @@ public class KmeansParallel {
             clusters.get(i).clearFacilities();
         }
 
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 
-      //  Logger.log("assignFacilitiesToClustersParallel - assigning facilities using parallelStream");
+        for (int i = 0; i < facilities.size(); i++) {
+            final Facility facility = facilities.get(i); // final cause jdk 8?
+            pool.submit(new Runnable() {
+                @Override
+                public void run() {
+                    Cluster closestCluster = null;
+                    double minDistance = Double.MAX_VALUE;
 
-        // parallelStream() uses the source collection's default Spliterator to split the data source to enable parallel execution
-        facilities.parallelStream().forEach(facility -> { // divides list ino chunks, usually the num of cores that are available
-            // Each chunk is processed by a worker thread from the common ForkJoinPool
-            Cluster closestCluster = null;
-            double minDistance = Double.MAX_VALUE;
+                    for (int j = 0; j < clusters.size(); j++) {
+                        Cluster cluster = clusters.get(j);
+                        double distance = Distance(facility, cluster.getCentroid());
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestCluster = cluster;
+                        }
+                    }
 
-            for (int j = 0; j < clusters.size(); j++) {
-                Cluster cluster = clusters.get(j);
-                double distance = Distance(facility, cluster.getCentroid());
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestCluster = cluster;
+                    if (closestCluster != null) {
+                        synchronized (closestCluster) {
+                            closestCluster.addFacility(facility);
+                        }
+                    } else {
+                        Logger.log("Facility at (" + facility.getLongitude() + ", " + facility.getLatitude() + ") was not assigned to any cluster!", LogLevel.Error);
+                    }
                 }
-            }
+            });
+        }
 
-            if (closestCluster != null) {
-                synchronized (closestCluster) {
-                    closestCluster.addFacility(facility);
-                }
-            } else {
-                Logger.log("Facility at (" + facility.getLongitude() + ", " + facility.getLatitude() + ") was not assigned to any cluster!", LogLevel.Error);
-            }
-        });
+        pool.shutdown();
+        try {
+            pool.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Logger.log("Thread pool interrupted", LogLevel.Error);
+        }
 
        // Logger.log("assignFacilitiesToClustersParallel - assignment complete", LogLevel.Success);
     }
 
-    private double Distance(Facility facility, Centroid centroid) {
-        double dx = facility.getLongitude() - centroid.getLongitude();
-        double dy = facility.getLatitude() - centroid.getLatitude();
-
-        double distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (Double.isNaN(distance) || Double.isInfinite(distance)){
-            Logger.log("Invalid Distance for Facility: (" + facility.getLongitude() + ", " + facility.getLatitude() + "and Centroid: (" + centroid.getLongitude() + ", " + centroid.getLatitude() + ")", LogLevel.Error);
-        }
-
-        return distance;
+    private double Distance(Facility f, Centroid c) {
+        final int R = 6371; // Earth radius in km
+        double latDistance = Math.toRadians(c.getLatitude() - f.getLatitude());
+        double lonDistance = Math.toRadians(c.getLongitude() - f.getLongitude());
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(f.getLatitude())) * Math.cos(Math.toRadians(c.getLatitude()))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double cVal = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * cVal;
     }
 
     private void recalculateCentroidsParallel() {
