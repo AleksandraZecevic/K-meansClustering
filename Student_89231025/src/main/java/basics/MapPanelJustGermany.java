@@ -17,10 +17,7 @@ import util.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +33,8 @@ public class MapPanelJustGermany extends JPanel {
     private boolean isDistributed;
     private int numMPIprocesses;
     private String OS;
+
+    private static long runTimeMs = 0;
 
     public MapPanelJustGermany(int numSites, int numC, int numCy, boolean p, boolean d, int nmp, String selectedOS) {
         this.numFacilities = numSites;
@@ -205,6 +204,23 @@ public class MapPanelJustGermany extends JPanel {
                         Logger.log("jole/clusters.json not found. Cannot draw distributed results", LogLevel.Error);
                     }
 
+                    File timeFile = new File("jole/runtime.txt");
+
+                    if(timeFile.exists()){
+                        try (BufferedReader reader = new BufferedReader(new FileReader("jole/runtime.txt"))) {
+                                String line = reader.readLine();
+                                if (line != null) {
+                                    runTimeMs = Long.parseLong(line.trim());
+                                }else{
+                                    Logger.log("jole/runtime.txt is empty", LogLevel.Error);
+                                }
+                        }catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }else{
+                        Logger.log("jole/runtime.txt not found. Cannot print time", LogLevel.Error);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(this, "Failed to run distributed job: " + e.getMessage(),
@@ -214,7 +230,7 @@ public class MapPanelJustGermany extends JPanel {
             } else if (isParallel) {
                 Logger.log("MapFrameJustGermany - Running in PARALLEL mode");
                 KmeansParallel kmeans = new KmeansParallel(numClusters, numCycles, facilities);
-                kmeans.run();
+                runTimeMs = kmeans.run();
 
                 mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() {
                     @Override
@@ -238,7 +254,7 @@ public class MapPanelJustGermany extends JPanel {
             } else {
                 Logger.log("MapFrameJustGermany - Running in SEQUENTIAL mode");
                 Kmeans kmeans = new Kmeans(numClusters, numCycles, facilities);
-                kmeans.run();
+                runTimeMs = kmeans.run();
 
                 mapKit.getMainMap().setOverlayPainter(new Painter<JComponent>() {
                     @Override
@@ -266,6 +282,10 @@ public class MapPanelJustGermany extends JPanel {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static long getRunTimeMs(){
+        return runTimeMs;
     }
 
 

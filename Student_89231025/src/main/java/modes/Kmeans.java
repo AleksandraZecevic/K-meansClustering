@@ -105,7 +105,7 @@ public class Kmeans {
         return clusters;
     }
 
-    public void run() {
+    public long run() {
         long startTime = System.currentTimeMillis();
 
         // the run method is going to work in cycles
@@ -123,6 +123,7 @@ public class Kmeans {
 
         long endTime = System.currentTimeMillis();
         Logger.log("Time for " + maxCycles + " cycles, " + numOfClusters + " clusters is "  + (endTime - startTime) + "ms", LogLevel.Success);
+        return endTime-startTime;
     }
 
 }

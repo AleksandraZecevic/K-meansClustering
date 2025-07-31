@@ -25,7 +25,7 @@ public class KmeansParallel {
         this.maxCycles=mc;
         this.facilities=f;
     }
-    public void run() {
+    public long run() {
         long startTime = System.currentTimeMillis();
 
         initializeCentroids();
@@ -37,6 +37,7 @@ public class KmeansParallel {
 
         long endTime = System.currentTimeMillis();
         Logger.log("Parallel run: Time for " + maxCycles + " cycles, " + numOfClusters + " clusters is " + (endTime - startTime) + "ms", LogLevel.Success);
+        return endTime-startTime;
     }
 
     private void initializeCentroids() {

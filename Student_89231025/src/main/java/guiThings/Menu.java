@@ -18,6 +18,8 @@ public class Menu extends JFrame {
     private JPanel mapContainerPanel;
     private JLabel statusLabel;
 
+    private JLabel timeLabel;
+
     public Menu() {
         setTitle("K-means Clustering");
         setSize(1000, 800);
@@ -60,12 +62,23 @@ public class Menu extends JFrame {
         controlPanel.add(buttonPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.NORTH);
 
+        JPanel statusPanel = new JPanel(new GridLayout(2,1));
+
         // Status label
         statusLabel = new JLabel(" ");
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
         statusLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        add(statusLabel, BorderLayout.SOUTH);
+        statusPanel.add(statusLabel);
+
+        // Time label
+        timeLabel = new JLabel("Runtime: --");
+        timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        timeLabel.setFont(new Font("Arial", Font.ITALIC, 14));
+        timeLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        statusPanel.add(timeLabel);
+
+        add(statusPanel, BorderLayout.SOUTH);
 
         // Map display area
         mapContainerPanel = new JPanel(new BorderLayout());
@@ -82,6 +95,7 @@ public class Menu extends JFrame {
             mapContainerPanel.revalidate();
             mapContainerPanel.repaint();
             statusLabel.setText("Map cleared.");
+            timeLabel.setText("Runtime: --");
         });
 
         Logger.log("GUI - Menu initialized", LogLevel.Success);
@@ -211,6 +225,9 @@ public class Menu extends JFrame {
                 String modeText = isDistributed ? "Distributed" : (isParallel ? "Parallel" : "Sequential");
                 statusLabel.setText("Running in " + modeText + " mode with " +
                         numSites + " sites, " + numClusters + " clusters, " + numCycles + " cycles.");
+
+                String timeMS = String.valueOf(MapPanelJustGermany.getRunTimeMs());
+                timeLabel.setText("Runtime: " + timeMS +"ms");
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(settingsDialog,

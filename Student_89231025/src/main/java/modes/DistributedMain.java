@@ -10,6 +10,7 @@ import util.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Arrays;
 
@@ -152,6 +153,15 @@ public class DistributedMain {
         if (rank == 0) {
             long endTime = System.currentTimeMillis();
             Logger.log("Distributed run: Time for " + maxCycles + " cycles, " + numClusters + " clusters is " + (endTime - startTime) + "ms", LogLevel.Success);
+
+            long duration = endTime - startTime;
+            // Write to time.txt
+            try (PrintWriter out = new PrintWriter("jole/runtime.txt")) {
+                out.println(duration);
+            } catch (IOException e) {
+                System.err.println("Failed to write runtime: " + e.getMessage());
+            }
+
             ObjectMapper mapper = new ObjectMapper();
 
             System.out.println("Working directory: " + System.getProperty("user.dir"));
